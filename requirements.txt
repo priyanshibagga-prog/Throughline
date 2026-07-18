@@ -1,0 +1,7 @@
+feedparser
+psycopg2-binary
+python-dotenv
+sentence-transformers
+pgvector
+numpy
+groq
