@@ -8,6 +8,7 @@ import psycopg2
 from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
+from text_utils import clean_text
 
 load_dotenv()  # reads DATABASE_URL from a .env file, see .env.example
 
@@ -49,12 +50,12 @@ def ingest_feed(source_name, feed_url, conn):
 
     new_count = 0
     for entry in parsed.entries:
-        title = entry.get("title", "").strip()
+        title = clean_text(entry.get("title", "").strip())
         url = entry.get("link", "").strip()
         if not title or not url:
             continue  # skip anything malformed, don't let one bad entry crash the run
 
-        body = get_body(entry)
+        body = clean_text(get_body(entry))
         published_at = parse_published_time(entry)
 
         with conn.cursor() as cur:

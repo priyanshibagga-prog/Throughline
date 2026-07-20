@@ -5,3 +5,6 @@ sentence-transformers
 pgvector
 numpy
 groq
+fastapi
+uvicorn
+trafilatura

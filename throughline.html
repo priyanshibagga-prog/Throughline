@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Throughline — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFEAE0;
+    --paper-card:#F6F2E8;
+    --paper-deep:#E4DECF;
+    --ink:#1B1F2B;
+    --ink-soft:#5B5F6B;
+    --ink-faint:#8A8D97;
+    --brick:#A63D40;
+    --brick-deep:#84302F;
+    --gold:#B08A3E;
+    --forest:#4B5D45;
+    --forest-deep:#3A4736;
+    --line:#CDC5B0;
+    --line-soft:#DAD3C0;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Serif 4', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Fraunces', serif;}
+  .ui{font-family:'Inter', sans-serif;}
+  a{color:inherit;}
+  button{font-family:'Inter', sans-serif; cursor:pointer;}
+
+  /* ---------- Prototype flow nav ---------- */
+  .proto-bar{
+    position:sticky; top:0; z-index:50;
+    background:var(--ink); color:var(--paper);
+    padding:10px 20px;
+    display:flex; align-items:center; gap:14px;
+    font-family:'Inter', sans-serif;
+    flex-wrap:wrap;
+  }
+  .proto-bar .label{
+    font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:#9BA0AC; margin-right:4px;
+  }
+  .proto-step{
+    background:transparent; border:1px solid #3A3E4A; color:#B7BAC2;
+    padding:6px 12px; border-radius:20px; font-size:12.5px; font-weight:500;
+    transition:all .15s ease;
+  }
+  .proto-step.active{
+    background:var(--brick); border-color:var(--brick); color:#fff;
+  }
+  .proto-step:hover:not(.active){ border-color:#565B69; color:#fff; }
+
+  .screen{ display:none; min-height:100vh; }
+  .screen.active{ display:block; }
+
+  /* ---------- Screen 1: Sign in ---------- */
+  #screen-signin{
+    display:none;
+    min-height:100vh;
+    align-items:center; justify-content:center;
+    flex-direction:column;
+    background:
+      radial-gradient(ellipse at 50% -10%, #F4EFE2 0%, var(--paper) 60%);
+    padding:40px 20px;
+  }
+  #screen-signin.active{ display:flex; }
+  .mark{
+    display:flex; align-items:center; gap:10px; margin-bottom:6px;
+  }
+  .mark-thread{
+    width:34px; height:2px; background:var(--brick); position:relative;
+  }
+  .mark-thread::before, .mark-thread::after{
+    content:''; position:absolute; top:50%; transform:translateY(-50%);
+    width:6px; height:6px; border-radius:50%; background:var(--brick);
+  }
+  .mark-thread::before{ left:-2px; }
+  .mark-thread::after{ right:-2px; }
+  .wordmark{
+    font-size:44px; font-weight:600; letter-spacing:-.01em; margin:0;
+  }
+  .tagline{
+    font-family:'Inter', sans-serif; color:var(--ink-soft); font-size:14.5px;
+    letter-spacing:.02em; margin:2px 0 40px 0; text-align:center;
+  }
+  .auth-card{
+    background:var(--paper-card); border:1px solid var(--line);
+    border-radius:4px; padding:36px 32px; width:100%; max-width:380px;
+    box-shadow:0 1px 0 rgba(0,0,0,.03);
+  }
+  .auth-card h2{
+    font-size:20px; font-weight:500; margin:0 0 22px 0; text-align:center;
+  }
+  .auth-btn{
+    width:100%; padding:13px 16px; border-radius:3px; border:1px solid var(--line);
+    background:#fff; font-size:14.5px; font-weight:500; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    margin-bottom:10px; transition:border-color .15s ease, background .15s ease;
+  }
+  .auth-btn:hover{ border-color:var(--ink-soft); background:#FBF9F4; }
+  .auth-btn.primary{
+    background:var(--ink); color:var(--paper); border-color:var(--ink);
+  }
+  .auth-btn.primary:hover{ background:#2A2F3D; }
+  .auth-divider{
+    display:flex; align-items:center; gap:12px; margin:18px 0;
+    color:var(--ink-faint); font-size:12px; font-family:'Inter',sans-serif;
+  }
+  .auth-divider::before, .auth-divider::after{
+    content:''; flex:1; height:1px; background:var(--line);
+  }
+  .auth-fine{
+    font-family:'Inter', sans-serif; font-size:12px; color:var(--ink-faint);
+    text-align:center; margin-top:18px; line-height:1.6;
+  }
+
+  /* ---------- Shared onboarding shell (screens 2 & 3) ---------- */
+  .onb-shell{ display:none; max-width:760px; margin:0 auto; padding:56px 24px 100px; }
+  .onb-shell.active{ display:block; }
+  .onb-progress{
+    display:flex; align-items:center; gap:8px; margin-bottom:36px;
+    font-family:'Inter', sans-serif;
+  }
+  .onb-dot{
+    width:26px; height:26px; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:12px; font-weight:600;
+    background:var(--paper-deep); color:var(--ink-faint); border:1px solid var(--line);
+  }
+  .onb-dot.done{ background:var(--forest); color:#fff; border-color:var(--forest); }
+  .onb-dot.now{ background:var(--brick); color:#fff; border-color:var(--brick); }
+  .onb-progress-line{ flex:1; height:1px; background:var(--line); }
+  .onb-eyebrow{
+    font-family:'Inter', sans-serif; font-size:12px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--brick); font-weight:600; margin-bottom:10px;
+  }
+  .onb-title{ font-size:32px; font-weight:600; margin:0 0 8px 0; letter-spacing:-.01em; }
+  .onb-sub{
+    font-family:'Inter', sans-serif; color:var(--ink-soft); font-size:15px;
+    margin:0 0 36px 0; max-width:520px; line-height:1.6;
+  }
+
+  /* Source cards */
+  .source-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+    gap:12px; margin-bottom:44px;
+  }
+  .source-card{
+    background:var(--paper-card); border:1.5px solid var(--line); border-radius:4px;
+    padding:18px; text-align:left; transition:all .15s ease; position:relative;
+  }
+  .source-card:hover{ border-color:var(--ink-faint); }
+  .source-card.selected{
+    border-color:var(--forest); background:#F0F3EE;
+  }
+  .source-check{
+    position:absolute; top:14px; right:14px; width:18px; height:18px;
+    border-radius:50%; border:1.5px solid var(--line); background:#fff;
+  }
+  .source-card.selected .source-check{
+    background:var(--forest); border-color:var(--forest);
+  }
+  .source-card.selected .source-check::after{
+    content:''; display:block; width:5px; height:9px;
+    border-right:2px solid #fff; border-bottom:2px solid #fff;
+    transform:rotate(45deg); margin:2px auto 0 6px;
+  }
+  .source-name{ font-family:'Fraunces', serif; font-size:18px; font-weight:600; margin:0 0 4px 0; }
+  .source-desc{ font-family:'Inter', sans-serif; font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin:0; }
+
+  .onb-section-label{
+    font-family:'Inter', sans-serif; font-size:13px; font-weight:600;
+    color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em;
+    margin-bottom:14px;
+  }
+
+  .topic-grid{ display:flex; flex-wrap:wrap; gap:9px; margin-bottom:48px; }
+  .topic-chip{
+    font-family:'Inter', sans-serif; font-size:13.5px; font-weight:500;
+    padding:9px 16px; border-radius:20px; border:1.5px solid var(--line);
+    background:var(--paper-card); color:var(--ink-soft); transition:all .15s ease;
+  }
+  .topic-chip:hover{ border-color:var(--ink-faint); }
+  .topic-chip.selected{
+    background:var(--ink); border-color:var(--ink); color:var(--paper);
+  }
+
+  .onb-actions{ display:flex; justify-content:space-between; align-items:center; }
+  .btn-primary{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:14px;
+    background:var(--brick); color:#fff; border:none; padding:13px 26px;
+    border-radius:3px; transition:background .15s ease;
+  }
+  .btn-primary:hover{ background:var(--brick-deep); }
+  .btn-ghost{
+    font-family:'Inter', sans-serif; font-weight:500; font-size:13.5px;
+    background:transparent; border:none; color:var(--ink-faint);
+  }
+  .btn-ghost:hover{ color:var(--ink); }
+
+  /* Reading-time cards */
+  .time-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
+    gap:14px; margin-bottom:44px;
+  }
+  .time-card{
+    background:var(--paper-card); border:1.5px solid var(--line); border-radius:4px;
+    padding:22px 18px; text-align:left; transition:all .15s ease;
+  }
+  .time-card:hover{ border-color:var(--ink-faint); }
+  .time-card.selected{ border-color:var(--brick); background:#F7EEEC; }
+  .time-mins{ font-family:'Fraunces', serif; font-size:30px; font-weight:600; line-height:1; }
+  .time-mins span{ font-size:14px; font-family:'Inter',sans-serif; font-weight:500; color:var(--ink-soft); }
+  .time-count{ font-family:'Inter', sans-serif; font-size:12.5px; color:var(--ink-soft); margin:8px 0 12px 0; }
+  .gauge{ display:flex; gap:3px; align-items:flex-end; height:22px; }
+  .gauge i{ width:6px; background:var(--line); border-radius:1px; display:block; }
+  .time-card.selected .gauge i{ background:var(--brick); }
+
+  /* ---------- Screen 4: main paper ---------- */
+  #screen-paper{ display:none; }
+  #screen-paper.active{ display:block; }
+  .masthead{
+    border-bottom:3px double var(--ink); padding:28px 24px 14px;
+    max-width:840px; margin:0 auto; text-align:center;
+  }
+  .edition-line{
+    font-family:'Inter', sans-serif; font-size:10.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px;
+  }
+  .masthead .wordmark{ font-size:42px; margin-bottom:2px; }
+  .masthead-meta{
+    font-family:'Inter', sans-serif; font-size:12.5px; color:var(--ink-soft);
+    letter-spacing:.03em; display:flex; justify-content:center; align-items:center; gap:0; margin-top:8px;
+    flex-wrap:wrap;
+  }
+  .masthead-meta b{ color:var(--ink); font-weight:600; }
+  .masthead-meta .sep{ margin:0 12px; color:var(--line); }
+
+  .edition-picker-row{
+    max-width:840px; margin:18px auto 0; padding:0 24px;
+    display:flex; justify-content:center;
+  }
+  .edition-picker{
+    position:relative; font-family:'Inter', sans-serif;
+  }
+  .edition-picker::after{
+    content:'▾'; position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    font-size:10px; color:var(--ink-soft); pointer-events:none;
+  }
+  .edition-picker select{
+    appearance:none; -webkit-appearance:none;
+    font-family:'Inter', sans-serif; font-size:12.5px; font-weight:600;
+    letter-spacing:.03em; color:var(--ink); background:var(--paper-card);
+    border:1px solid var(--line); border-radius:20px; padding:9px 34px 9px 16px;
+    cursor:pointer;
+  }
+  .edition-picker select:hover{ border-color:var(--ink-faint); }
+
+  .paper-body{ max-width:840px; margin:0 auto; padding:36px 24px 90px; }
+
+  .toc{
+    background:var(--paper-card); border:1px solid var(--line-soft); border-radius:4px;
+    padding:18px 22px; margin-bottom:40px; font-family:'Inter', sans-serif;
+  }
+  .toc-label{ font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; font-weight:600; }
+  .toc a{ display:block; font-size:13.5px; color:var(--ink-soft); text-decoration:none; padding:4px 0; }
+  .toc a:hover{ color:var(--brick); }
+  .toc a b{ color:var(--gold); font-weight:600; margin-right:6px; }
+
+  .article{ margin-bottom:56px; padding-bottom:52px; border-bottom:1px solid var(--line-soft); }
+  .article:last-child{ border-bottom:none; }
+  .art-meta{
+    display:flex; align-items:center; gap:10px; margin-bottom:10px;
+    font-family:'Inter', sans-serif; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase;
+  }
+  .art-source{ color:#fff; background:var(--ink); padding:3px 9px; border-radius:2px; font-weight:600; }
+  .art-topic{ color:var(--gold); font-weight:600; }
+  .art-time{ color:var(--ink-faint); margin-left:auto; }
+  .art-headline{ font-size:27px; font-weight:600; line-height:1.2; margin:0 0 12px 0; letter-spacing:-.01em; }
+  .art-body{ margin-top:26px; }
+  .art-body p{ font-size:15.5px; line-height:1.7; color:#292D38; margin:0 0 15px 0; }
+  .art-body p:first-of-type::first-letter{
+    font-family:'Fraunces', serif; font-size:52px; font-weight:600; float:left;
+    line-height:.8; margin:6px 8px 0 0; color:var(--brick);
+  }
+  @media (min-width:680px){
+    .art-body{ column-count:2; column-gap:32px; column-rule:1px solid var(--line-soft); }
+    .art-body p:first-of-type{ margin-top:0; }
+  }
+
+  .expand-row{ display:flex; flex-wrap:wrap; gap:10px; margin:0 0 4px 0; }
+  .expand-btn{
+    font-family:'Inter', sans-serif; font-size:13px; font-weight:600;
+    background:transparent; border:1.5px solid var(--forest); color:var(--forest-deep);
+    padding:9px 15px; border-radius:20px; display:flex; align-items:center; gap:7px;
+    transition:all .15s ease;
+  }
+  .expand-btn:hover{ background:var(--forest); color:#fff; }
+  .expand-btn .chev{ transition:transform .2s ease; font-size:10px; }
+  .expand-btn.open .chev{ transform:rotate(180deg); }
+  .expand-btn.catchup{ border-color:var(--gold); color:#8A6A2E; }
+  .expand-btn.catchup:hover{ background:var(--gold); color:#fff; }
+
+  .summary-block{
+    background:#F4EFE1; border-left:3px solid var(--gold); border-radius:0 3px 3px 0;
+    padding:14px 18px; margin:0 0 18px 0;
+  }
+  .summary-block.ai{ border-left-color:var(--forest); background:#EFF2ED; }
+  .summary-label{
+    font-family:'Inter', sans-serif; font-size:10.5px; font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:#8A6A2E; margin-bottom:6px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .summary-block.ai .summary-label{ color:var(--forest-deep); }
+  .ai-tag{
+    font-size:9.5px; background:var(--forest); color:#fff; padding:1px 6px;
+    border-radius:3px; letter-spacing:.04em; font-weight:700;
+  }
+  .summary-text{
+    font-family:'Source Serif 4', serif; font-style:italic; font-size:14.5px;
+    color:#33372F; line-height:1.6; margin:0;
+  }
+
+  .timeline-panel{
+    display:none; margin-top:20px; padding:22px 24px 6px 20px;
+    background:var(--paper-card); border:1px solid var(--line-soft); border-radius:4px;
+  }
+  .timeline-panel.open{ display:block; }
+  .timeline-panel h4{
+    font-family:'Inter', sans-serif; font-size:12px; text-transform:uppercase;
+    letter-spacing:.08em; color:var(--ink-faint); margin:0 0 18px 0; font-weight:700;
+  }
+  .thread{ position:relative; padding-left:22px; }
+  .thread::before{
+    content:''; position:absolute; left:5px; top:6px; bottom:6px; width:1.5px;
+    background:var(--line);
+  }
+  .thread-item{ position:relative; padding-bottom:20px; }
+  .thread-item:last-child{ padding-bottom:0; }
+  .thread-item::before{
+    content:''; position:absolute; left:-22px; top:4px; width:9px; height:9px;
+    border-radius:50%; background:var(--paper-card); border:2px solid var(--forest);
+  }
+  .thread-item.today::before{ background:var(--brick); border-color:var(--brick); width:11px; height:11px; left:-23px; top:3px; }
+  .thread-date{
+    font-family:'Inter', sans-serif; font-size:11.5px; font-weight:600;
+    color:var(--forest-deep); margin-bottom:3px;
+  }
+  .thread-item.today .thread-date{ color:var(--brick); }
+  .thread-text{ font-family:'Inter', sans-serif; font-size:13.5px; color:var(--ink); line-height:1.55; }
+
+  .caught-up{
+    max-width:760px; margin:0 auto; padding:0 24px 80px; text-align:center;
+  }
+  .caught-up-mark{
+    font-family:'Fraunces', serif; font-size:20px; color:var(--ink-soft);
+    padding-top:30px; border-top:1px dashed var(--line);
+  }
+  .caught-up-sub{ font-family:'Inter', sans-serif; font-size:13px; color:var(--ink-faint); margin-top:6px; }
+
+  @media (max-width:600px){
+    .wordmark{ font-size:32px; }
+    .art-headline{ font-size:22px; }
+    .onb-title{ font-size:26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="proto-bar ui">
+  <span class="label">Prototype flow</span>
+  <button class="proto-step active" data-target="screen-signin">1 · Sign in</button>
+  <button class="proto-step" data-target="screen-sources">2 · Sources</button>
+  <button class="proto-step" data-target="screen-topics">3 · Topics</button>
+  <button class="proto-step" data-target="screen-time">4 · Reading time</button>
+  <button class="proto-step" data-target="screen-paper">5 · Today's paper</button>
+</div>
+
+<!-- ================= SCREEN 1: SIGN IN ================= -->
+<section id="screen-signin" class="screen active">
+  <div class="mark"><span class="mark-thread"></span></div>
+  <h1 class="wordmark">Throughline</h1>
+  <p class="tagline">One paper a day. Everything you need to understand it.</p>
+  <div class="auth-card">
+    <h2>Sign in to begin</h2>
+    <input type="email" id="signupEmail" placeholder="you@example.com" value="priyanshi@example.com"
+      style="width:100%; padding:12px 14px; margin-bottom:12px; border:1px solid var(--line); border-radius:3px; font-family:'Inter',sans-serif; font-size:14px; box-sizing:border-box;">
+    <button class="auth-btn" onclick="goTo('screen-sources')">Continue with Google</button>
+    <div class="auth-divider">or</div>
+    <button class="auth-btn primary" onclick="goTo('screen-sources')">Continue with email</button>
+  </div>
+</section>
+
+<!-- ================= SCREEN 2: SOURCES ================= -->
+<section id="screen-sources" class="screen onb-shell">
+  <div class="onb-progress">
+    <div class="onb-dot now">1</div><div class="onb-progress-line"></div>
+    <div class="onb-dot">2</div><div class="onb-progress-line"></div>
+    <div class="onb-dot">3</div>
+  </div>
+  <div class="onb-eyebrow">Step 1 of 3</div>
+  <h2 class="onb-title">Which outlets do you trust?</h2>
+  <p class="onb-sub">Every story in your paper is pulled only from the outlets you select here. You can change this anytime.</p>
+
+  <div class="source-grid" id="sourceGrid">
+    <button class="source-card selected" data-select="source">
+      <div class="source-check"></div>
+      <p class="source-name">BBC</p>
+      <p class="source-desc">UK-based, broad international coverage.</p>
+    </button>
+    <button class="source-card selected" data-select="source">
+      <div class="source-check"></div>
+      <p class="source-name">Al Jazeera</p>
+      <p class="source-desc">Strong regional depth on the Middle East and Global South.</p>
+    </button>
+    <button class="source-card" data-select="source">
+      <div class="source-check"></div>
+      <p class="source-name">The Guardian</p>
+      <p class="source-desc">UK-based, analysis-driven, long-form leaning.</p>
+    </button>
+    <button class="source-card selected" data-select="source">
+      <div class="source-check"></div>
+      <p class="source-name">NPR</p>
+      <p class="source-desc">US public radio, in-depth domestic reporting.</p>
+    </button>
+  </div>
+
+  <div class="onb-actions">
+    <button class="btn-ghost" onclick="goTo('screen-signin')">← Back</button>
+    <button class="btn-primary" onclick="goTo('screen-topics')">Continue</button>
+  </div>
+</section>
+
+<!-- ================= SCREEN 3: TOPICS ================= -->
+<section id="screen-topics" class="screen onb-shell">
+  <div class="onb-progress">
+    <div class="onb-dot done">✓</div><div class="onb-progress-line"></div>
+    <div class="onb-dot now">2</div><div class="onb-progress-line"></div>
+    <div class="onb-dot">3</div>
+  </div>
+  <div class="onb-eyebrow">Step 2 of 3</div>
+  <h2 class="onb-title">What do you want to follow?</h2>
+  <p class="onb-sub">Pick as many as you like. Your paper still surfaces a genuinely major or urgent story even outside these topics — this shapes emphasis, not a hard filter.</p>
+
+  <div class="topic-grid" id="topicGrid">
+    <button class="topic-chip selected" data-select="topic">Headlines</button>
+    <button class="topic-chip selected" data-select="topic">World</button>
+    <button class="topic-chip" data-select="topic">U.S. News</button>
+    <button class="topic-chip" data-select="topic">Politics</button>
+    <button class="topic-chip selected" data-select="topic">Middle East</button>
+    <button class="topic-chip" data-select="topic">Europe</button>
+    <button class="topic-chip" data-select="topic">Asia</button>
+    <button class="topic-chip" data-select="topic">Africa</button>
+    <button class="topic-chip" data-select="topic">Americas</button>
+    <button class="topic-chip selected" data-select="topic">Technology</button>
+    <button class="topic-chip" data-select="topic">Business &amp; Economy</button>
+    <button class="topic-chip" data-select="topic">Markets &amp; Finance</button>
+    <button class="topic-chip" data-select="topic">Science</button>
+    <button class="topic-chip" data-select="topic">Health</button>
+    <button class="topic-chip" data-select="topic">Climate &amp; Environment</button>
+    <button class="topic-chip" data-select="topic">Culture</button>
+    <button class="topic-chip" data-select="topic">Arts &amp; Books</button>
+    <button class="topic-chip" data-select="topic">Film &amp; TV</button>
+    <button class="topic-chip" data-select="topic">Sports</button>
+    <button class="topic-chip" data-select="topic">Opinion &amp; Analysis</button>
+    <button class="topic-chip" data-select="topic">Education</button>
+    <button class="topic-chip" data-select="topic">Travel</button>
+    <button class="topic-chip" data-select="topic">Food &amp; Drink</button>
+  </div>
+
+  <div class="onb-actions">
+    <button class="btn-ghost" onclick="goTo('screen-sources')">← Back</button>
+    <button class="btn-primary" onclick="goTo('screen-time')">Continue</button>
+  </div>
+</section>
+
+<!-- ================= SCREEN 3: READING TIME ================= -->
+<section id="screen-time" class="screen onb-shell">
+  <div class="onb-progress">
+    <div class="onb-dot done">✓</div><div class="onb-progress-line"></div>
+    <div class="onb-dot done">✓</div><div class="onb-progress-line"></div>
+    <div class="onb-dot now">3</div>
+  </div>
+  <div class="onb-eyebrow">Step 3 of 3</div>
+  <h2 class="onb-title">How long do you want to read?</h2>
+  <p class="onb-sub">This sets how many stories make it into each day's edition.</p>
+
+  <div class="time-grid" id="timeGrid">
+    <button class="time-card" data-select="time" data-mins="15">
+      <div class="time-mins">15<span>min</span></div>
+      <div class="time-count">≈ 3 stories</div>
+      <div class="gauge"><i style="height:40%"></i><i style="height:40%"></i><i style="height:40%"></i><i style="height:8px;background:var(--line-soft)"></i><i style="height:8px;background:var(--line-soft)"></i></div>
+    </button>
+    <button class="time-card selected" data-select="time" data-mins="30">
+      <div class="time-mins">30<span>min</span></div>
+      <div class="time-count">≈ 6 stories</div>
+      <div class="gauge"><i style="height:70%"></i><i style="height:70%"></i><i style="height:70%"></i><i style="height:70%"></i><i style="height:70%"></i></div>
+    </button>
+    <button class="time-card" data-select="time" data-mins="45">
+      <div class="time-mins">45<span>min</span></div>
+      <div class="time-count">≈ 9 stories</div>
+      <div class="gauge"><i style="height:90%"></i><i style="height:90%"></i><i style="height:90%"></i><i style="height:90%"></i><i style="height:90%"></i></div>
+    </button>
+    <button class="time-card" data-select="time" data-mins="60">
+      <div class="time-mins">60<span>min</span></div>
+      <div class="time-count">≈ 12 stories</div>
+      <div class="gauge"><i style="height:100%"></i><i style="height:100%"></i><i style="height:100%"></i><i style="height:100%"></i><i style="height:100%"></i></div>
+    </button>
+  </div>
+
+  <div class="onb-actions">
+    <button class="btn-ghost" onclick="goTo('screen-topics')">← Back</button>
+    <button class="btn-primary" onclick="submitOnboarding()">Build my first paper →</button>
+  </div>
+</section>
+
+<!-- ================= SCREEN 4: TODAY'S PAPER ================= -->
+<section id="screen-paper" class="screen">
+  <div class="masthead">
+    <div class="edition-line">Five sources, one paper</div>
+    <div class="mark" style="justify-content:center;"><span class="mark-thread"></span></div>
+    <h1 class="wordmark">Throughline</h1>
+    <div class="masthead-meta">
+      <span id="mastheadDate"><b>Loading...</b></span>
+      <span class="sep">|</span>
+      <span id="mastheadTime">-- min edition</span>
+      <span class="sep">|</span>
+      <span id="mastheadCount">-- stories</span>
+    </div>
+  </div>
+
+  <div class="edition-picker-row ui">
+    <div class="edition-picker">
+      <select id="editionSelect" onchange="onEditionChange(this)">
+        <option value="">Today</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="paper-body">
+    <div id="paperLoading" style="text-align:center; padding:60px 0; font-family:'Inter',sans-serif; color:var(--ink-soft);">
+      Fetching today's paper...
+    </div>
+    <div id="paperError" style="display:none; text-align:center; padding:60px 24px; font-family:'Inter',sans-serif; color:var(--brick);">
+      Couldn't reach the API. Make sure it's running:<br>
+      <code style="background:var(--paper-card); padding:4px 8px; border-radius:3px; display:inline-block; margin-top:8px;">uvicorn api:app --reload</code>
+    </div>
+
+    <div id="tocContainer"></div>
+    <div id="articlesContainer"></div>
+  </div>
+
+  <div class="caught-up" id="caughtUpMessage" style="display:none;">
+    <div class="caught-up-mark">— That's your paper for today —</div>
+    <div class="caught-up-sub">You're caught up. Come back tomorrow morning for the next edition.</div>
+  </div>
+</section>
+
+<script>
+  async function submitOnboarding(){
+    const email = document.getElementById('signupEmail').value || 'test@example.com';
+
+    const sources = Array.from(document.querySelectorAll('#sourceGrid .source-card.selected .source-name'))
+      .map(el => el.textContent.trim());
+
+    const topicWeights = {};
+    document.querySelectorAll('#topicGrid .topic-chip.selected').forEach(el => {
+      topicWeights[el.textContent.trim()] = 2;  // uniform weight for now — all selected topics count equally
+    });
+
+    const timeCard = document.querySelector('#timeGrid .time-card.selected');
+    const readingTimeMinutes = timeCard ? parseInt(timeCard.dataset.mins, 10) : 30;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          sources,
+          topic_weights: topicWeights,
+          reading_time_minutes: readingTimeMinutes,
+        }),
+      });
+      if (!res.ok) throw new Error('Signup failed: ' + res.status);
+      const data = await res.json();
+      CURRENT_USER_ID = data.user_id;
+      goTo('screen-paper');
+    } catch (err) {
+      console.error(err);
+      alert("Couldn't save your preferences — is the API running? (uvicorn api:app --reload)");
+    }
+  }
+
+  function goTo(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.proto-step').forEach(b => b.classList.toggle('active', b.dataset.target === id));
+    window.scrollTo(0,0);
+    if (id === 'screen-paper') fetchPaper();
+  }
+  document.querySelectorAll('.proto-step').forEach(btn=>{
+    btn.addEventListener('click', ()=> goTo(btn.dataset.target));
+  });
+
+  document.querySelectorAll('#sourceGrid .source-card, #topicGrid .topic-chip').forEach(el=>{
+    el.addEventListener('click', ()=> el.classList.toggle('selected'));
+  });
+
+  document.querySelectorAll('#timeGrid .time-card').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      document.querySelectorAll('#timeGrid .time-card').forEach(c=>c.classList.remove('selected'));
+      el.classList.add('selected');
+    });
+  });
+
+  const API_BASE = 'http://localhost:8000';
+  let CURRENT_USER_ID = 1;  // reassigned once a real user is created via onboarding
+
+  async function fetchPaper(editionDate){
+    const loading = document.getElementById('paperLoading');
+    const errorBox = document.getElementById('paperError');
+    const tocContainer = document.getElementById('tocContainer');
+    const articlesContainer = document.getElementById('articlesContainer');
+    const caughtUp = document.getElementById('caughtUpMessage');
+
+    loading.style.display = 'block';
+    errorBox.style.display = 'none';
+    tocContainer.innerHTML = '';
+    articlesContainer.innerHTML = '';
+    caughtUp.style.display = 'none';
+
+    try {
+      const url = editionDate
+        ? `${API_BASE}/api/paper/${CURRENT_USER_ID}?edition_date=${editionDate}`
+        : `${API_BASE}/api/paper/${CURRENT_USER_ID}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('API returned ' + res.status);
+      const data = await res.json();
+
+      const displayDate = editionDate ? new Date(editionDate + 'T00:00:00') : new Date();
+      document.getElementById('mastheadDate').innerHTML =
+        '<b>' + displayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + '</b>';
+      document.getElementById('mastheadTime').textContent = data.reading_time_minutes + ' min edition';
+      document.getElementById('mastheadCount').textContent = data.story_count + ' stories';
+
+      renderToc(data.stories);
+      renderArticles(data.stories);
+
+      loading.style.display = 'none';
+      caughtUp.style.display = 'block';
+
+      if (!editionDate) populateEditionDropdown();  // only refresh the list from today's view
+    } catch (err) {
+      loading.style.display = 'none';
+      errorBox.style.display = 'block';
+      console.error(err);
+    }
+  }
+
+  async function populateEditionDropdown(){
+    try {
+      const res = await fetch(`${API_BASE}/api/editions/${CURRENT_USER_ID}`);
+      const data = await res.json();
+      const select = document.getElementById('editionSelect');
+      const todayStr = new Date().toISOString().split('T')[0];
+      select.innerHTML = data.dates.map(d => {
+        const label = d === todayStr
+          ? 'Today'
+          : new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        return `<option value="${d === todayStr ? '' : d}">${label}</option>`;
+      }).join('');
+    } catch (err) {
+      console.error('Could not load edition list', err);
+    }
+  }
+
+  function onEditionChange(sel){
+    fetchPaper(sel.value || null);
+  }
+
+  function renderToc(stories){
+    const container = document.getElementById('tocContainer');
+    if (stories.length === 0) {
+      container.innerHTML = '<div class="toc"><div class="toc-label">Nothing new right now — check back later.</div></div>';
+      return;
+    }
+    const links = stories.map((s, i) =>
+      `<a href="#art${i}"><b>${String(i + 1).padStart(2, '0')}</b>${escapeHtml(s.headline)}</a>`
+    ).join('');
+    container.innerHTML = `<div class="toc"><div class="toc-label">In today's edition</div>${links}</div>`;
+  }
+
+  function renderArticles(stories){
+    const container = document.getElementById('articlesContainer');
+    container.innerHTML = stories.map((s, i) => renderArticle(s, i)).join('');
+  }
+
+  function renderArticle(story, i){
+    const topicsLine = (story.topics || []).join(' · ');
+    const statusLabel = story.status === 'update' ? 'UPDATED' : 'NEW';
+
+    const buttons = [];
+    if (story.historical_context && story.historical_context.length > 0) {
+      buttons.push(`<button class="expand-btn" onclick="toggle(this,'hist${i}')"><span class="chev">▾</span> Understand the history</button>`);
+    }
+    if (story.recent_timeline && story.recent_timeline.length > 0) {
+      buttons.push(`<button class="expand-btn catchup" onclick="toggle(this,'catch${i}')"><span class="chev">▾</span> Catch up on the last few days</button>`);
+    }
+
+    const historyPanel = (story.historical_context && story.historical_context.length > 0) ? `
+      <div class="timeline-panel" id="hist${i}">
+        <h4>How we got here</h4>
+        <div class="thread">
+          ${story.historical_context.map(item => `
+            <div class="thread-item"><div class="thread-date">${escapeHtml(item.date)}</div><div class="thread-text">${escapeHtml(item.text)}</div></div>
+          `).join('')}
+        </div>
+      </div>` : '';
+
+    const recentPanel = (story.recent_timeline && story.recent_timeline.length > 0) ? `
+      <div class="timeline-panel" id="catch${i}">
+        <h4>The story so far</h4>
+        <div class="thread">
+          ${story.recent_timeline.map((item, idx, arr) => `
+            <div class="thread-item${idx === arr.length - 1 ? ' today' : ''}"><div class="thread-date">${escapeHtml(item.date)}</div><div class="thread-text">${escapeHtml(item.text)}</div></div>
+          `).join('')}
+        </div>
+      </div>` : '';
+
+    // The full original article, attributed to its real source — not
+    // synthesized. Body text is stored as one block, so we split on
+    // blank lines where they exist, or just show it as-is otherwise.
+    const bodyParagraphs = (story.full_text || '')
+      .split(/\n\s*\n/)
+      .filter(p => p.trim().length > 0)
+      .map(p => `<p>${escapeHtml(p.trim())}</p>`)
+      .join('');
+    const articleBody = story.full_text ? `
+      <div class="art-body">
+        ${bodyParagraphs || `<p>${escapeHtml(story.full_text)}</p>`}
+      </div>` : '';
+
+    return `
+      <article class="article" id="art${i}">
+        <div class="art-meta">
+          ${story.source ? `<span class="art-source">${escapeHtml(story.source)}</span>` : ''}
+          <span class="art-topic">${escapeHtml(topicsLine)}</span>
+          <span class="art-time">${statusLabel}</span>
+        </div>
+        <h2 class="art-headline">${escapeHtml(story.headline)}</h2>
+        <div class="summary-block ai">
+          <div class="summary-label">AI Summary <span class="ai-tag">AI</span></div>
+          <p class="summary-text">${escapeHtml(story.summary)}</p>
+        </div>
+        <div class="expand-row">${buttons.join('')}</div>
+        ${historyPanel}
+        ${recentPanel}
+        ${articleBody}
+      </article>`;
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function toggle(btn, panelId){
+    const panel = document.getElementById(panelId);
+    const isOpen = panel.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+  }
+</script>
+
+</body>
+</html>
