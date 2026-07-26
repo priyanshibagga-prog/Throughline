@@ -88,7 +88,7 @@ def get_representative_article(conn, story_id, allowed_sources=None):
             )
         row = cur.fetchone()
     if not row:
-        return None, None, None
+        return None, None, None, None
 
     article_id, source, title, body, url, full_text_fetched = row
 
@@ -107,7 +107,7 @@ def get_representative_article(conn, story_id, allowed_sources=None):
                 cur.execute("UPDATE articles SET full_text_fetched = TRUE WHERE id = %s;", (article_id,))
             conn.commit()
 
-    return source, title, body
+    return source, title, body, url
 
 
 def get_available_editions(conn, user_id):
@@ -141,11 +141,11 @@ def get_past_edition(conn, user_id, edition_date):
 
     results = []
     for story_id, headline, summary, topics, historical_context, recent_timeline, status in rows:
-        source, art_title, full_text = get_representative_article(conn, story_id, user_sources)
+        source, art_title, full_text, url = get_representative_article(conn, story_id, user_sources)
         results.append({
             "id": story_id, "headline": headline, "summary": summary, "topics": topics,
             "status": status, "historical_context": historical_context or [], "recent_timeline": recent_timeline or [],
-            "source": source, "full_text": full_text,
+            "source": source, "full_text": full_text, "url": url,
         })
     return results
 
@@ -245,9 +245,10 @@ def build_todays_paper(conn, user_id, record_edition=True):
                 used_buckets.add(item["bucket"])
 
     for item in selected:
-        source, art_title, full_text = get_representative_article(conn, item["id"], user_sources)
+        source, art_title, full_text, url = get_representative_article(conn, item["id"], user_sources)
         item["source"] = source
         item["full_text"] = full_text
+        item["url"] = url
 
     if record_edition:
         with conn.cursor() as cur:

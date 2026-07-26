@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=UnifrakturMaguntia&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: #0c0c0c;
+  --color-foreground: #f0ede6;
+  --color-card: #141414;
+  --color-card-foreground: #f0ede6;
+  --color-primary: #e8d5b0;
+  --color-primary-foreground: #0c0c0c;
+  --color-secondary: #1e1e1e;
+  --color-secondary-foreground: #a89f8f;
+  --color-muted: #1a1a1a;
+  --color-muted-foreground: #6b6560;
+  --color-accent: #c8a96e;
+  --color-accent-foreground: #0c0c0c;
+  --color-border: #242424;
+  --color-ring: #c8a96e;
+  --radius: 2px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'DM Sans', sans-serif;
+  background: #0c0c0c;
+  color: #f0ede6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #0c0c0c;
+}
+
+.font-display {
+  font-family: 'Fraunces', serif;
+}
+
+.font-mono-data {
+  font-family: 'DM Mono', monospace;
+}
+
+/* Hide scrollbars by default, show on hover/scroll */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+/* Timeline connector line (dark theme) */
+.timeline-line::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 16px;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, #c8a96e44, transparent);
+}
+
+/* Newspaper timeline connector line */
+.np-timeline-line::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 16px;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, #2a1e0888, transparent);
+}
+
+/* Newspaper paper texture */
+.paper-bg {
+  background-color: #f2e8d0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* Newspaper column divider */
+.col-rule {
+  border-right: 1px solid #b8a888;
+}
+
+/* Classic drop cap */
+.dropcap::first-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 0.8;
+  float: left;
+  margin-right: 6px;
+  margin-top: 4px;
+  color: #1a1505;
+}
+
+/* Broadsheet column text */
+.np-body {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #2a1e08;
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* Ornamental rule */
+.ornament-rule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #8a7855;
+}
+.ornament-rule::before,
+.ornament-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #8a7855;
+}
+
+.font-blackletter {
+  font-family: 'UnifrakturMaguntia', cursive;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}

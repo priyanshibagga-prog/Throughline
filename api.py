@@ -70,6 +70,7 @@ def get_paper(user_id: int, edition_date: Optional[str] = None):
                 "recent_timeline": item["recent_timeline"],
                 "source": item.get("source"),
                 "full_text": item.get("full_text"),
+                "url": item.get("url"),
             }
             for item in stories
         ],
