@@ -1,6 +1,11 @@
 #!/bin/bash
 # Runs the full Throughline pipeline in order: ingest -> embed -> cluster
-# -> synthesize -> generate context -> build today's paper.
+# -> synthesize -> build today's papers -> generate context.
+#
+# build_paper runs before generate_context on purpose: generate_context
+# only fills in history/timeline/AI-summary for stories that actually got
+# selected into someone's edition today (see its paper_editions join), so
+# the editions have to exist first.
 #
 # Run manually with: ./run_pipeline.sh
 # Or scheduled to run automatically — see the cron instructions.
@@ -30,10 +35,10 @@ echo "--- Clustering ---" | tee -a "$LOG_FILE"
 echo "--- Synthesizing stories ---" | tee -a "$LOG_FILE"
 "$PYTHON" synthesize_all.py >> "$LOG_FILE" 2>&1
 
-echo "--- Generating context (history / catch-up) ---" | tee -a "$LOG_FILE"
-"$PYTHON" generate_context.py >> "$LOG_FILE" 2>&1
-
-echo "--- Building today's paper ---" | tee -a "$LOG_FILE"
+echo "--- Building today's papers (all users) ---" | tee -a "$LOG_FILE"
 "$PYTHON" build_paper.py >> "$LOG_FILE" 2>&1
+
+echo "--- Generating context (history / catch-up / AI summary) ---" | tee -a "$LOG_FILE"
+"$PYTHON" generate_context.py >> "$LOG_FILE" 2>&1
 
 echo "=== Done: $(date) ===" | tee -a "$LOG_FILE"

@@ -64,6 +64,7 @@ def get_paper(user_id: int, edition_date: Optional[str] = None):
                 "id": item["id"],
                 "headline": item["headline"],
                 "summary": item["summary"],
+                "ai_summary": item.get("ai_summary"),
                 "topics": item["topics"],
                 "status": item["status"],
                 "historical_context": item["historical_context"],

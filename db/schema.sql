@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS stories (
     id                  SERIAL PRIMARY KEY,
     centroid_embedding  vector(384),
     headline            TEXT,
-    summary             TEXT,
+    summary             TEXT,     -- short 2-3 sentence teaser, shown as the deck/subhead
+    ai_summary          TEXT,     -- longer AI-generated summary of the full representative article, shown behind the "AI Summary" expand button
     key_facts           TEXT[],
     disputed_facts      TEXT[],
     importance_score    INTEGER,

@@ -78,7 +78,10 @@ function mapStoryToArticle(story: any): Article {
     byline: story.source ? `${story.source}` : undefined,
     readMinutes: Math.max(1, Math.round(wordCount / 200)),
     url: story.url || "#",
-    aiSummary: story.summary,
+    // ai_summary is a longer, distinct summary of the full article — deck
+    // above is the short teaser. Fall back to the teaser only for stories
+    // where it hasn't been generated yet, so the button never shows nothing.
+    aiSummary: story.ai_summary || story.summary,
     historicalContext: story.historical_context && story.historical_context.length > 0 ? story.historical_context : undefined,
     recentEvents: story.recent_timeline && story.recent_timeline.length > 0 ? story.recent_timeline : undefined,
     status: story.status,
@@ -152,7 +155,6 @@ function NpTimeline({ events, onClose }: { events: TimelineEvent[]; onClose: () 
 function NpArticle({ article, index }: { article: Article; index: number }) {
   const [showHistory, setShowHistory] = useState(false)
   const [showRecent, setShowRecent] = useState(false)
-  const [showSummary, setShowSummary] = useState(false)
 
   const toggleHistory = () => { setShowHistory(v => !v); if (showRecent) setShowRecent(false) }
   const toggleRecent = () => { setShowRecent(v => !v); if (showHistory) setShowHistory(false) }
@@ -160,7 +162,7 @@ function NpArticle({ article, index }: { article: Article; index: number }) {
   const isLead = index === 0
 
   return (
-    <article className={`${isLead ? "col-span-full border-b-2 border-[#2a1e08] pb-6 mb-2" : "border-b border-[#b8a888] pb-5"}`}>
+    <article className={`max-w-2xl mx-auto ${isLead ? "border-b-2 border-[#2a1e08] pb-7 mb-7" : "border-b border-[#b8a888] pb-6 mb-6"}`}>
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         <span className="font-mono-data text-[9px] tracking-[0.3em] text-[#8a7855] uppercase border border-[#b8a888] px-1.5 py-0.5">
           {article.section}
@@ -180,7 +182,7 @@ function NpArticle({ article, index }: { article: Article; index: number }) {
         </div>
       )}
 
-      <h2 className={`font-playfair font-black text-[#1a1505] leading-tight mb-1 ${isLead ? "text-4xl md:text-5xl" : "text-xl"}`}>
+      <h2 className={`font-playfair font-black text-[#1a1505] leading-tight mb-1 ${isLead ? "text-4xl md:text-5xl" : "text-2xl"}`}>
         {article.headline}
       </h2>
 
@@ -205,17 +207,10 @@ function NpArticle({ article, index }: { article: Article; index: number }) {
         </a>
       </div>
 
-      <button onClick={() => setShowSummary(v => !v)} className="w-full text-left mb-2">
-        <div className={`border px-3 py-2.5 transition-colors ${showSummary ? "border-[#5a4a2a] bg-[#e8dfc4]" : "border-[#c4b896] bg-[#ede3c8] hover:border-[#8a7855]"}`}>
-          <div className="flex items-center justify-between">
-            <span className="font-mono-data text-[8px] tracking-[0.3em] text-[#5a4a2a] uppercase font-medium">✦ AI Summary</span>
-            <span className="font-mono-data text-[9px] text-[#8a7855]">{showSummary ? "▲ collapse" : "▼ expand"}</span>
-          </div>
-          {showSummary && (
-            <p className="np-body text-[12.5px] mt-2.5 border-t border-[#c4b896] pt-2.5">{article.aiSummary}</p>
-          )}
-        </div>
-      </button>
+      <div className="border border-[#c4b896] bg-[#ede3c8] px-3.5 py-3 mb-3">
+        <span className="font-mono-data text-[8px] tracking-[0.3em] text-[#5a4a2a] uppercase font-medium">✦ AI Summary</span>
+        <p className="np-body text-[12.5px] mt-2">{article.aiSummary}</p>
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {article.historicalContext && (
@@ -303,16 +298,22 @@ function SignInScreen({ onNext }: { onNext: (email: string) => void }) {
   )
 }
 
-function SourcesScreen({ onNext }: { onNext: (selected: string[]) => void }) {
-  const [selected, setSelected] = useState<string[]>([])
+function SourcesScreen({ onNext, initial = [], mode = "onboarding", onCancel }: {
+  onNext: (selected: string[]) => void
+  initial?: string[]
+  mode?: "onboarding" | "edit"
+  onCancel?: () => void
+}) {
+  const [selected, setSelected] = useState<string[]>(initial)
   const toggle = (id: string) =>
     setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])
+  const isEdit = mode === "edit"
 
   return (
     <PaperShell>
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="font-mono-data text-[9px] tracking-[0.3em] text-[#8a3a2a] uppercase mb-2">
-          Step 1 of 3
+          {isEdit ? "Account settings" : "Step 1 of 3"}
         </div>
         <h1 className="font-playfair text-4xl font-black text-[#1a1505] mb-3 leading-tight">
           Which outlets do you trust?
@@ -347,41 +348,89 @@ function SourcesScreen({ onNext }: { onNext: (selected: string[]) => void }) {
           })}
         </div>
 
-        <button
-          onClick={() => onNext(selected)}
-          disabled={selected.length === 0}
-          className="px-10 py-3.5 bg-[#5a4a2a] text-[#f2e8d0] font-playfair font-bold text-sm tracking-wider hover:bg-[#3a2e18] transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          Continue →
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => onNext(selected)}
+            disabled={selected.length === 0}
+            className="px-10 py-3.5 bg-[#5a4a2a] text-[#f2e8d0] font-playfair font-bold text-sm tracking-wider hover:bg-[#3a2e18] transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            {isEdit ? "Save" : "Continue →"}
+          </button>
+          {isEdit && onCancel && (
+            <button onClick={onCancel} className="font-mono-data text-[10px] tracking-wider text-[#8a7855] hover:text-[#1a1505] transition-colors uppercase">
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
     </PaperShell>
   )
 }
 
-function TopicsScreen({ onNext }: { onNext: (topics: string[]) => void }) {
-  const [selected, setSelected] = useState<string[]>(["Headlines"])
+const DEFAULT_TOPIC_WEIGHT = 2
+const HEADLINES_WEIGHT = 3 // locked topic always gets max weight — see build_paper.py's MAJOR_HEADLINE_IMPORTANCE_MIN escape valve, this is its topic-side counterpart
+
+function StarRating({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3].map((n) => (
+        <button
+          key={n}
+          onClick={(e) => { e.stopPropagation(); onChange(n) }}
+          className="leading-none text-[13px] transition-colors"
+          style={{ color: n <= value ? "#5a4a2a" : "#c4b896" }}
+          aria-label={`${n} star${n > 1 ? "s" : ""}`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function TopicsScreen({ onNext, initialWeights, mode = "onboarding", onCancel }: {
+  onNext: (weights: Record<string, number>) => void
+  initialWeights?: Record<string, number>
+  mode?: "onboarding" | "edit"
+  onCancel?: () => void
+}) {
+  const [weights, setWeights] = useState<Record<string, number>>(initialWeights ?? { Headlines: HEADLINES_WEIGHT })
+  const isEdit = mode === "edit"
+
   const toggle = (t: string) => {
     if (t === "Headlines") return
-    setSelected((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t])
+    setWeights((prev) => {
+      if (t in prev) {
+        const next = { ...prev }
+        delete next[t]
+        return next
+      }
+      return { ...prev, [t]: DEFAULT_TOPIC_WEIGHT }
+    })
   }
+
+  const rate = (t: string, n: number) => setWeights((prev) => ({ ...prev, [t]: n }))
+
+  const selectedTopics = Object.keys(weights).filter((t) => t !== "Headlines")
 
   return (
     <PaperShell>
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="font-mono-data text-[9px] tracking-[0.3em] text-[#8a3a2a] uppercase mb-2">
-          Step 2 of 3
+          {isEdit ? "Account settings" : "Step 2 of 3"}
         </div>
         <h1 className="font-playfair text-4xl font-black text-[#1a1505] mb-3 leading-tight">
           What do you want to read?
         </h1>
         <p className="np-body text-[14px] text-[#5a4a2a] mb-10 max-w-lg">
-          We care about what matters to you. You can change this anytime.
+          Pick your topics, then rate how much each one matters — your paper
+          only pulls from these (plus genuinely major headlines). You can
+          change this anytime.
         </p>
 
-        <div className="flex flex-wrap gap-2.5 mb-12">
+        <div className="flex flex-wrap gap-2.5 mb-8">
           {TOPICS.map((t) => {
-            const active = selected.includes(t)
+            const active = t in weights
             const locked = t === "Headlines"
             return (
               <button
@@ -400,25 +449,56 @@ function TopicsScreen({ onNext }: { onNext: (topics: string[]) => void }) {
           })}
         </div>
 
-        <button
-          onClick={() => onNext(selected)}
-          className="px-10 py-3.5 bg-[#5a4a2a] text-[#f2e8d0] font-playfair font-bold text-sm tracking-wider hover:bg-[#3a2e18] transition-colors duration-200"
-        >
-          Continue →
-        </button>
+        {selectedTopics.length > 0 && (
+          <div className="mb-10 border border-[#c4b896] bg-[#ede3c8] px-5 py-4">
+            <div className="font-mono-data text-[9px] tracking-[0.25em] text-[#8a7855] uppercase mb-3">
+              How much does each one matter?
+            </div>
+            <div className="space-y-2.5">
+              {selectedTopics.map((t) => (
+                <div key={t} className="flex items-center justify-between">
+                  <span className="font-playfair text-[15px] text-[#1a1505]">{t}</span>
+                  <StarRating value={weights[t]} onChange={(n) => rate(t, n)} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => onNext(weights)}
+            className="px-10 py-3.5 bg-[#5a4a2a] text-[#f2e8d0] font-playfair font-bold text-sm tracking-wider hover:bg-[#3a2e18] transition-colors duration-200"
+          >
+            {isEdit ? "Save" : "Continue →"}
+          </button>
+          {isEdit && onCancel && (
+            <button onClick={onCancel} className="font-mono-data text-[10px] tracking-wider text-[#8a7855] hover:text-[#1a1505] transition-colors uppercase">
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
     </PaperShell>
   )
 }
 
-function ReadTimeScreen({ onNext, submitting, error }: { onNext: (time: string) => void; submitting: boolean; error: string | null }) {
-  const [selected, setSelected] = useState("30")
+function ReadTimeScreen({ onNext, submitting, error, initial = "30", mode = "onboarding", onCancel }: {
+  onNext: (time: string) => void
+  submitting: boolean
+  error: string | null
+  initial?: string
+  mode?: "onboarding" | "edit"
+  onCancel?: () => void
+}) {
+  const [selected, setSelected] = useState(initial)
+  const isEdit = mode === "edit"
 
   return (
     <PaperShell>
       <div className="max-w-xl mx-auto px-6 py-12">
         <div className="font-mono-data text-[9px] tracking-[0.3em] text-[#8a3a2a] uppercase mb-2">
-          Step 3 of 3
+          {isEdit ? "Account settings" : "Step 3 of 3"}
         </div>
         <h1 className="font-playfair text-4xl font-black text-[#1a1505] mb-3 leading-tight">
           How long do you have?
@@ -456,19 +536,89 @@ function ReadTimeScreen({ onNext, submitting, error }: { onNext: (time: string) 
           <p className="np-body text-[13px] text-[#8a3a2a] mb-4">{error}</p>
         )}
 
-        <button
-          onClick={() => onNext(selected)}
-          disabled={submitting}
-          className="px-10 py-3.5 bg-[#5a4a2a] text-[#f2e8d0] font-playfair font-bold text-sm tracking-wider hover:bg-[#3a2e18] transition-colors duration-200 disabled:opacity-50"
-        >
-          {submitting ? "Building your edition…" : "Open my edition →"}
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => onNext(selected)}
+            disabled={submitting}
+            className="px-10 py-3.5 bg-[#5a4a2a] text-[#f2e8d0] font-playfair font-bold text-sm tracking-wider hover:bg-[#3a2e18] transition-colors duration-200 disabled:opacity-50"
+          >
+            {submitting ? (isEdit ? "Saving…" : "Building your edition…") : (isEdit ? "Save" : "Open my edition →")}
+          </button>
+          {isEdit && onCancel && (
+            <button onClick={onCancel} disabled={submitting} className="font-mono-data text-[10px] tracking-wider text-[#8a7855] hover:text-[#1a1505] transition-colors uppercase disabled:opacity-50">
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
     </PaperShell>
   )
 }
 
-function NewspaperScreen({ userId }: { userId: number }) {
+function AccountMenu({ onEditSources, onEditTopics, onEditReadTime, onLogout }: {
+  onEditSources: () => void
+  onEditTopics: () => void
+  onEditReadTime: () => void
+  onLogout: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [])
+
+  const item = (label: string, onClick: () => void, danger = false) => (
+    <button
+      onClick={() => { setOpen(false); onClick() }}
+      className={`w-full text-left px-4 py-2.5 font-mono-data text-[10px] tracking-wider hover:bg-[#e8dfc4] transition-colors ${danger ? "text-[#8a3a2a]" : "text-[#5a4a2a]"}`}
+    >
+      {label}
+    </button>
+  )
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-6 h-6 rounded-full bg-[#5a4a2a] flex items-center justify-center hover:bg-[#3a2e18] transition-colors"
+        aria-label="Account menu"
+      >
+        <span className="font-mono-data text-[9px] text-[#f2e8d0]">Y</span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1 bg-[#f2e8d0] border border-[#b8a888] shadow-lg z-30 min-w-52 py-1">
+          {item("Change news sources", onEditSources)}
+          {item("Change topics", onEditTopics)}
+          {item("Change reading time", onEditReadTime)}
+          <div className="border-t border-[#e0d6bc] my-1" />
+          {item("Log out", onLogout, true)}
+        </div>
+      )}
+    </div>
+  )
+}
+
+type SettingsView = null | "sources" | "topics" | "readtime"
+
+interface Profile {
+  email: string
+  sources: string[]
+  topicWeights: Record<string, number>
+  readingTimeMinutes: number
+}
+
+function NewspaperScreen({ userId, profile, onLogout, onProfileSaved }: {
+  userId: number
+  profile: Profile
+  onLogout: () => void
+  onProfileSaved: (p: Partial<Omit<Profile, "email">>) => void
+}) {
   const [stories, setStories] = useState<Article[] | null>(null)
   const [readingMinutes, setReadingMinutes] = useState<number>(30)
   const [loading, setLoading] = useState(true)
@@ -477,6 +627,40 @@ function NewspaperScreen({ userId }: { userId: number }) {
   const [selectedDateValue, setSelectedDateValue] = useState<string>("") // "" = today
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
+  const [settingsView, setSettingsView] = useState<SettingsView>(null)
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [saveNotice, setSaveNotice] = useState<string | null>(null)
+
+  async function saveProfile(partial: Partial<Omit<Profile, "email">>) {
+    setSavingProfile(true)
+    const next = {
+      sources: partial.sources ?? profile.sources,
+      topicWeights: partial.topicWeights ?? profile.topicWeights,
+      readingTimeMinutes: partial.readingTimeMinutes ?? profile.readingTimeMinutes,
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: profile.email,
+          sources: next.sources,
+          topic_weights: next.topicWeights,
+          reading_time_minutes: next.readingTimeMinutes,
+        }),
+      })
+      if (!res.ok) throw new Error(`Save failed: ${res.status}`)
+      onProfileSaved(next)
+      setSettingsView(null)
+      setSaveNotice("Saved — this'll apply starting your next edition, today's stays as-is.")
+      setTimeout(() => setSaveNotice(null), 5000)
+    } catch (err) {
+      console.error(err)
+      setSaveNotice("Couldn't save — is the API running?")
+    } finally {
+      setSavingProfile(false)
+    }
+  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -522,6 +706,39 @@ function NewspaperScreen({ userId }: { userId: number }) {
   const displayDateIso = selectedDateValue || today
   const displayDateLabel = formatDateLabel(displayDateIso)
 
+  if (settingsView === "sources") {
+    return (
+      <SourcesScreen
+        mode="edit"
+        initial={profile.sources}
+        onNext={(s) => saveProfile({ sources: s })}
+        onCancel={() => setSettingsView(null)}
+      />
+    )
+  }
+  if (settingsView === "topics") {
+    return (
+      <TopicsScreen
+        mode="edit"
+        initialWeights={profile.topicWeights}
+        onNext={(w) => saveProfile({ topicWeights: w })}
+        onCancel={() => setSettingsView(null)}
+      />
+    )
+  }
+  if (settingsView === "readtime") {
+    return (
+      <ReadTimeScreen
+        mode="edit"
+        initial={String(profile.readingTimeMinutes)}
+        submitting={savingProfile}
+        error={null}
+        onNext={(t) => saveProfile({ readingTimeMinutes: parseInt(t, 10) })}
+        onCancel={() => setSettingsView(null)}
+      />
+    )
+  }
+
   if (loading && !stories) {
     return (
       <PaperShell>
@@ -544,11 +761,19 @@ function NewspaperScreen({ userId }: { userId: number }) {
 
   return (
     <div className="paper-bg min-h-screen" style={{ color: "#1a1505" }}>
+      {saveNotice && (
+        <div className="bg-[#4a6741] text-[#f2e8d0] text-center py-2 font-mono-data text-[10px] tracking-wider">
+          {saveNotice}
+        </div>
+      )}
       <div className="border-b border-[#b8a888] bg-[#f2e8d0]">
         <div className="max-w-5xl mx-auto px-6 py-2 flex items-center justify-end">
-          <div className="w-6 h-6 rounded-full bg-[#5a4a2a] flex items-center justify-center">
-            <span className="font-mono-data text-[9px] text-[#f2e8d0]">Y</span>
-          </div>
+          <AccountMenu
+            onEditSources={() => setSettingsView("sources")}
+            onEditTopics={() => setSettingsView("topics")}
+            onEditReadTime={() => setSettingsView("readtime")}
+            onLogout={onLogout}
+          />
         </div>
       </div>
 
@@ -613,19 +838,9 @@ function NewspaperScreen({ userId }: { userId: number }) {
             <p className="np-body text-[14px] text-[#5a4a2a]">Nothing new right now — check back later.</p>
           </div>
         ) : (
-          <div className="py-6 grid grid-cols-1 md:grid-cols-3 gap-x-6">
-            {visibleArticles[0] && (
-              <div className="md:col-span-3 mb-4">
-                <NpArticle article={visibleArticles[0]} index={0} />
-              </div>
-            )}
-            {visibleArticles.slice(1).map((article, i) => (
-              <div
-                key={article.id}
-                className={`${i < visibleArticles.slice(1).length - 1 ? "col-rule pr-6" : ""} mb-4 md:mb-0`}
-              >
-                <NpArticle article={article} index={i + 1} />
-              </div>
+          <div className="py-6">
+            {visibleArticles.map((article, i) => (
+              <NpArticle key={article.id} article={article} index={i} />
             ))}
           </div>
         )}
@@ -642,11 +857,11 @@ function NewspaperScreen({ userId }: { userId: number }) {
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
+const DEFAULT_PROFILE: Profile = { email: "", sources: [], topicWeights: { Headlines: 3 }, readingTimeMinutes: 30 }
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>("signin")
-  const [email, setEmail] = useState("")
-  const [sources, setSources] = useState<string[]>([])
-  const [topics, setTopics] = useState<string[]>(["Headlines"])
+  const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE)
   const [userId, setUserId] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -655,22 +870,21 @@ export default function App() {
     setSubmitting(true)
     setSubmitError(null)
     try {
-      const topicWeights: Record<string, number> = {}
-      topics.forEach((t) => { topicWeights[t] = 2 })
-
+      const readingTimeMinutes = parseInt(readTime, 10)
       const res = await fetch(`${API_BASE}/api/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email,
-          sources,
-          topic_weights: topicWeights,
-          reading_time_minutes: parseInt(readTime, 10),
+          email: profile.email,
+          sources: profile.sources,
+          topic_weights: profile.topicWeights,
+          reading_time_minutes: readingTimeMinutes,
         }),
       })
       if (!res.ok) throw new Error(`Signup failed: ${res.status}`)
       const data = await res.json()
       setUserId(data.user_id)
+      setProfile((p) => ({ ...p, readingTimeMinutes }))
       setScreen("newspaper")
     } catch (err) {
       console.error(err)
@@ -680,16 +894,30 @@ export default function App() {
     }
   }
 
+  function handleLogout() {
+    setScreen("signin")
+    setProfile(DEFAULT_PROFILE)
+    setUserId(null)
+    setSubmitError(null)
+  }
+
   switch (screen) {
     case "signin":
-      return <SignInScreen onNext={(e) => { setEmail(e); setScreen("sources") }} />
+      return <SignInScreen onNext={(e) => { setProfile((p) => ({ ...p, email: e })); setScreen("sources") }} />
     case "sources":
-      return <SourcesScreen onNext={(s) => { setSources(s); setScreen("topics") }} />
+      return <SourcesScreen onNext={(s) => { setProfile((p) => ({ ...p, sources: s })); setScreen("topics") }} />
     case "topics":
-      return <TopicsScreen onNext={(t) => { setTopics(t); setScreen("readtime") }} />
+      return <TopicsScreen onNext={(w) => { setProfile((p) => ({ ...p, topicWeights: w })); setScreen("readtime") }} />
     case "readtime":
       return <ReadTimeScreen onNext={handleFinish} submitting={submitting} error={submitError} />
     case "newspaper":
-      return userId ? <NewspaperScreen userId={userId} /> : null
+      return userId ? (
+        <NewspaperScreen
+          userId={userId}
+          profile={profile}
+          onLogout={handleLogout}
+          onProfileSaved={(p) => setProfile((prev) => ({ ...prev, ...p }))}
+        />
+      ) : null
   }
 }
