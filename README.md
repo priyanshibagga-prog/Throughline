@@ -1,6 +1,14 @@
 # Throughline
-
 A personalized daily newspaper. Throughline pulls in articles from trusted news outlets, clusters them into stories, uses an LLM to synthesize and rank them, and builds each reader a personalised daily edition.
+
+## Why this exists
+
+| The problem | What Throughline does |
+|---|---|
+| So many sources, so much information — don't know which to pick, reading news feels overwhelming | You select which sources you trust; every story draws from all of them, not one at a time |
+| Don't know what to read, endless never-ending articles | Personalizes by recency, importance, and relevance to you — a fixed number of articles per edition, not an infinite feed |
+| Feel like you're always playing catch-up | A "catch up" timeline shows recent events on any ongoing story, so you're never lost mid-conflict |
+| No clue who or what the historical context is for ongoing conflicts | An expandable historical context timeline gives the background — only when a story actually needs it |
 
 ## How it works
 
@@ -16,8 +24,6 @@ build_paper.py        → selects and ranks stories into each user's personalize
 ```
 
 `run_pipeline.sh` runs all of them in order and is meant to be scheduled (cron, etc.) every 15–30 minutes.
-
-
 
 ### API
 
@@ -55,5 +61,6 @@ Each story shows a headline, a short deck, a static "AI Summary" box (a longer, 
    ```
 
 ## Notes
+
 - Full article text is fetched on demand (via `trafilatura`) the first time a story is shown, then cached — not during ingestion, to avoid scraping articles nobody ends up reading.
 - `view_story.py` and `clean_existing_data.py` are small debugging/maintenance utilities, not part of the scheduled pipeline.
