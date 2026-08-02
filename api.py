@@ -10,7 +10,6 @@ in a browser — FastAPI generates that automatically.
 
 import os
 import json
-import threading
 import psycopg2
 from datetime import date as date_cls
 from typing import Optional
@@ -19,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from build_paper import build_todays_paper, get_past_edition, get_available_editions, get_user_profile, ensure_todays_data_is_fresh
+from build_paper import build_todays_paper, get_past_edition, get_available_editions, get_user_profile
 
 load_dotenv()
 
@@ -31,13 +30,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Set on the deployed backend (not in local .env) to enable GET /api/admin/warm
-# — a free stand-in for a paid scheduled job. A GitHub Actions workflow pings
-# this once a day with the matching key, so the shared story pool is usually
-# already warm before any real visitor shows up (see .github/workflows).
-# Unset (the local-dev default) means the endpoint always rejects.
-ADMIN_TRIGGER_KEY = os.environ.get("ADMIN_TRIGGER_KEY")
 
 
 def get_conn():
@@ -152,27 +144,3 @@ def create_user(payload: UserCreate):
         conn.close()
 
     return {"user_id": user_id}
-
-
-@app.get("/api/admin/warm")
-def warm_pipeline(key: str = ""):
-    """
-    Kicks off the shared ingest/embed/cluster/synthesize refresh for
-    today, if it hasn't run yet — meant to be pinged once a day by a
-    scheduler (see .github/workflows/daily-warm.yml) instead of paying
-    for a platform-native cron job. Runs in a background thread and
-    returns immediately: the refresh can take minutes on a heavy news
-    day, far longer than we want to hold an HTTP request open for.
-    """
-    if not ADMIN_TRIGGER_KEY or key != ADMIN_TRIGGER_KEY:
-        raise HTTPException(status_code=403, detail="Invalid or missing key")
-
-    def run():
-        conn = get_conn()
-        try:
-            ensure_todays_data_is_fresh(conn)
-        finally:
-            conn.close()
-
-    threading.Thread(target=run, daemon=True).start()
-    return {"status": "triggered"}

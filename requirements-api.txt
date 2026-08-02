@@ -1,0 +1,13 @@
+# Lean dependency set for the deployed API container (see Dockerfile).
+# The full pipeline (feedparser, sentence-transformers, groq) runs via
+# GitHub Actions instead, using the full requirements.txt — the API
+# itself never imports those, so leaving them out keeps this image
+# small and fast to build, which matters on a memory-constrained free
+# host like Koyeb's 512MB tier.
+psycopg2-binary
+python-dotenv
+pgvector
+numpy
+fastapi
+uvicorn
+trafilatura
