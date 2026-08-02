@@ -64,3 +64,15 @@ CREATE TABLE IF NOT EXISTS paper_editions (
     status          TEXT,   -- 'new' or 'update'
     shown_at        TIMESTAMPTZ DEFAULT now()
 );
+
+-- Whether the shared ingest/embed/cluster/synthesize refresh has run
+-- yet today. There's no fixed schedule for that refresh — it runs once,
+-- lazily, the first time ANYONE'S edition is built on a new day (see
+-- build_paper.py's ensure_todays_data_is_fresh). This table is what
+-- lets that check be a single fast row lookup instead of re-deriving
+-- "have we already run today" from article timestamps every request.
+CREATE TABLE IF NOT EXISTS pipeline_runs (
+    run_date        DATE PRIMARY KEY,
+    started_at      TIMESTAMPTZ DEFAULT now(),
+    completed_at    TIMESTAMPTZ
+);

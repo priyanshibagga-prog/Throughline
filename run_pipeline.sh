@@ -2,13 +2,19 @@
 # Runs the full Throughline pipeline in order: ingest -> embed -> cluster
 # -> synthesize -> build today's papers -> generate context.
 #
+# NOT scheduled, and doesn't need to be. build_paper.py's
+# ensure_todays_data_is_fresh() already triggers ingest/embed/cluster/
+# synthesize on its own — lazily, the first time anyone's edition is
+# built on a new day — and generate_context.py runs automatically right
+# after each user's edition is recorded. This script is only for
+# manually forcing a full run yourself (testing, pre-warming, debugging).
+#
 # build_paper runs before generate_context on purpose: generate_context
 # only fills in history/timeline/AI-summary for stories that actually got
 # selected into someone's edition today (see its paper_editions join), so
 # the editions have to exist first.
 #
 # Run manually with: ./run_pipeline.sh
-# Or scheduled to run automatically — see the cron instructions.
 
 # Always run relative to wherever THIS script lives, not wherever it was
 # launched from (cron launches scripts from a blank environment, so this

@@ -1,0 +1,159 @@
+=== Throughline pipeline run: Sun Aug  2 15:50:15 IST 2026 ===
+--- Ingesting articles ---
+Fetching BBC...
+  → 16 new articles from BBC (24 in feed)
+Fetching Al Jazeera...
+  → 25 new articles from Al Jazeera (25 in feed)
+Fetching The Guardian...
+  → 20 new articles from The Guardian (45 in feed)
+Fetching NPR...
+  → 5 new articles from NPR (10 in feed)
+--- Embedding new articles ---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading model...
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11322.29it/s]
+Found 66 articles without an embedding.
+Done — embedded 66 articles.
+--- Clustering ---
+Clustering 66 articles...
+
+  NEW story #289 — Trying to understand student deaths and protests in India
+  NEW story #290 — Top mountaineer Nirmal Purja confirmed dead after 11 hit by avala
+  NEW story #291 — Current Ebola outbreak worst ever in DR Congo, WHO says
+  NEW story #292 — Italy putting nearly all major cities on highest heat alert
+  NEW story #293 — Spain's Pedro Sánchez was a hero of migrants. After Ceuta, he fac
+  NEW story #294 — Crowds line Amsterdam's canals for Pride boat parade
+  NEW story #295 — Overnight Russian barrage kills nine in Kyiv, as air defense stru
+  NEW story #296 — California announces minimum wage increase as governor taunts Tru
+  NEW story #297 — How Australia combines modern tech and Indigenous knowledge to fi
+  NEW story #298 — A bruising 24 hours - what next for Fifa and under-pressure Infan
+  joined story #290 (similarity 0.89) — Avalanche in Pakistan kills famed mountaineer Nirmal Purja and hi
+  NEW story #299 — Tourist plane crashes during flight over Peru’s Nazca Lines, kill
+  NEW story #300 — Sopranos actor Vincent Pastore, known for playing mobsters and to
+  joined story #300 (similarity 0.91) — The Sopranos star Vincent Pastore dies aged 80
+  joined story #291 (similarity 0.58) — Why Uganda seems to be winning the battle against Ebola as virus 
+  NEW story #301 — Young guns for hire - the teenage hitmen recruited to kill across
+  NEW story #302 — Growing like ‘gangbusters’: Can Taiwan maintain its economic mome
+  NEW story #303 — Heatwave scorching western US ups risk of hazardous fire conditio
+  NEW story #304 — New York Times reveals Trump administration subpoena over North K
+  NEW story #305 — Solitude as a new aspirational lifestyle: 'We are not lonely'
+  joined story #268 (similarity 0.82) — Singapore bans UK band Massive Attack over Palestinian flag
+  NEW story #306 — Iran war live: Trump cancels attack, calls for a ‘rapid’ deal on 
+  NEW story #307 — Capital One says it closed Trump Organization’s accounts after an
+  NEW story #308 — Moscow restaurant bombing kills three people as device carried by
+  joined story #299 (similarity 0.85) — Tourist plane crashes in Peru, killing 13
+  NEW story #309 — Hungary plans to shut down only nuclear power plant amid drought
+  joined story #283 (similarity 0.57) — How Spain's migrant crisis created a political storm - whipped up
+  NEW story #310 — Gunman opens fire at Idaho fast-food restaurant, killing two
+  joined story #299 (similarity 0.79) — Thirteen dead in Peruvian tourist plane crash over Nazca Lines
+  NEW story #311 — US embassies issue alerts after Trump vows to hit Iran ‘hard’
+  joined story #293 (similarity 0.59) — Is criticism of Spain on border management legitimate or politics
+  NEW story #312 — Israel kills eight in Gaza despite Trump’s Hamas disarmament plan
+  NEW story #313 — Concept images of controversial 2032 Brisbane Olympics precinct r
+  joined story #306 (similarity 0.63) — Trump cancels Iran strike, says ‘deal perimeters’ reached
+  joined story #291 (similarity 0.58) — How Virunga Park protects people and gorillas from Ebola in easte
+  NEW story #314 — Anti-LGBTQ+ laws are on the rise across west Africa, campaigners 
+  joined story #298 (similarity 0.67) — Why isn’t anyone challenging Infantino for FIFA’s top job?
+  joined story #308 (similarity 0.83) — Three dead including female bomber in Moscow restaurant attack
+  joined story #306 (similarity 0.64) — Trump climbs down on Iran strikes after Saudi alarm and threats f
+  NEW story #315 — ‘This is where democracy beats totalitarianism’: Ukraine’s drone 
+  NEW story #316 — Undercover police unit closed down over unjustified surveillance,
+  NEW story #317 — EVs and hybrids approach half of Australian new car sales amid on
+  joined story #310 (similarity 0.73) — Shooting at In-N-Out Burger restaurant in Idaho leaves three peop
+  NEW story #318 — Gaza students overcome Israel’s genocide to mark Tawjihi results
+  joined story #310 (similarity 0.75) — At least three dead in Idaho shopping mall mass shooting
+  joined story #308 (similarity 0.85) — Three killed after bomb detonated at Moscow restaurant, state med
+  NEW story #319 — UK’s state investments agency hit by data breach
+  joined story #271 (similarity 0.57) — ‘We cannot magic up more water’: the supply problems putting hous
+  NEW story #320 — Callas, Beethoven, bee-eaters or storks: competition seeks to red
+  NEW story #321 — Queensland reveals concept plans for Brisbane Olympic stadium pre
+  joined story #306 (similarity 0.83) — Trump says he's cancelling Iran strikes, deal pending
+  NEW story #322 — Ginger hair portraits show unexpected 'golden thread' connecting 
+  NEW story #323 — Arsenal’s Arteta expects more signings as Tzolis scores against G
+  NEW story #324 — Tarik Skubal acquired by LA Dodgers at the MLB trade deadline
+  NEW story #325 — Lionel Messi returns for Inter Miami after extended post-World Cu
+  NEW story #326 — Petro urges global support to stop possible US invasion of Cuba
+  joined story #306 (similarity 0.88) — Trump ‘cancels attack on Iran’ saying deal is near
+  NEW story #327 — Stock market turmoil sheds stark light on the opaque AI economy
+  NEW story #328 — How Davutoglu helped shape Erdogan’s Turkiye but failed to challe
+  joined story #306 (similarity 0.89) — Trump cancels Iran strikes subject to deal being made 'rapidly'
+  joined story #306 (similarity 0.80) — Why has Trump halted Iran attacks, and what is the deal he is hin
+  NEW story #329 — A quiet day in Harare after Zimbabwe’s shutdown call
+  NEW story #330 — Residents of Spain’s Ceuta shut down far-right anti-migrant rally
+  NEW story #331 — Five dead, 41 missing, after Indonesia ferry catches fire
+  joined story #290 (similarity 0.80) — Body of mountaineer Nirmal Purja recovered after Pakistan avalanc
+  NEW story #332 — July set to be driest on record for England and Wales after relen
+
+Done.
+--- Synthesizing stories ---
+Synthesizing 44 stories...
+
+  #289 — Student Suicides Spark Anti-Government Protests in India  |  entities: ['India Student Protests']
+  #290 — Famed Mountaineer Nirmal Purja Dies in Pakistan Avalanche  |  entities: ['Broad Peak Climbing Disaster']
+  #291 — Ebola Outbreak Worsens in DR Congo  |  entities: ['DR Congo Ebola Outbreak']
+  #292 — Italy Issues Highest Heat Alert for Most Major Cities  |  entities: ['2023 Italian heatwave']
+  #293 — Spain Faces Migrant Crisis in Ceuta  |  entities: ['Ceuta Migrant Crisis']
+  #294 — Amsterdam Hosts Colorful Pride Boat Parade  |  entities: ['Amsterdam Pride 2024']
+  #295 — Russian Missile Attack Kills Nine in Kyiv  |  entities: ['Russia-Ukraine conflict']
+  #296 — California Raises Minimum Wage to $17.40  |  entities: ['California Minimum Wage 2024']
+  #297 — Australia Combines Tech and Indigenous Knowledge to Combat Wildfires  |  entities: ['Australian bushfires', 'European wildfires']
+  #298 — FIFA President Gianni Infantino faces pressure after scrapping World Cup investment plan  |  entities: ['FIFA World Cup', 'Gianni Infantino presidency']
+  #299 — Peru tourist plane crash kills 13 near Nazca Lines  |  entities: ['Nazca Lines plane crash']
+  #300 — Vincent Pastore, Sopranos Actor, Dies at 80  |  entities: ['The Sopranos']
+  #301 — Teenage Hitmen Recruited by Foxtrot Network Across Europe  |  entities: ['Foxtrot Network']
+  #302 — Taiwan's Economic Growth Sparks Concerns Over Global Relations  |  entities: ['Taiwan-China Relations', 'US-Taiwan Trade']
+  #303 — Western US Heatwave Increases Wildfire Risk  |  entities: ['2023 Western US Heatwave']
+  #304 — US Justice Department Faces Criticism Over Subpoena of Journalists  |  entities: ['Trump Administration', 'US Press Freedom']
+  #305 — The Rise of Solo Living as a Lifestyle Choice  |  entities: ['Loneliness Influencers Movement']
+  #306 — US President Trump Cancels Iran Attack, Cites Progress in Talks  |  entities: ['US-Iran conflict']
+  #307 — Capital One Closes Trump Organization's Accounts Over Money-Laundering Concerns  |  entities: ['Trump Organization', 'Capital One', 'US Money Laundering Investigations']
+  #308 — Moscow Restaurant Bombing Kills Three  |  entities: ['Moscow Restaurant Bombing']
+  #309 — Hungary to Shut Down Nuclear Power Plant Due to Drought  |  entities: ['Hungary Drought Crisis', 'Danube River Water Levels', 'Paks Nuclear Power Plant']
+  #310 — Idaho In-N-Out Burger Shooting Leaves Multiple Dead  |  entities: ['Twin Falls Idaho Shooting']
+  #311 — US and Iran Tensions Escalate  |  entities: ['US-Iran conflict']
+  #312 — Israel Launches Airstrikes in Gaza Amid US Disarmament Plan  |  entities: ['Israel-Gaza conflict']
+  #313 — Yolngu Leaders Establish New Dilak Land Council in Arnhem Land  |  entities: ['Dilak Land Council', 'Yolngu People', 'Arnhem Land']
+  #314 — Rise of Anti-LGBTQ+ Laws in West Africa  |  entities: ['West Africa LGBTQ+ Rights']
+  #315 — Ukraine Deploys Drone Strike Force Against Russia  |  entities: ['Russia-Ukraine conflict']
+  #316 — UK Undercover Police Unit Shut Down Over Unjustified Surveillance  |  entities: ['Spycops inquiry', 'UK police surveillance']
+  #317 — Electric and Hybrid Vehicles Gain Popularity in Australia  |  entities: ['Australian Fuel Crisis']
+  #318 — Gaza Students Complete High School Exams Amid Ongoing Conflict  |  entities: ['Israel-Gaza conflict']
+  #319 — UK Government Investments Agency Hit by Data Breach  |  entities: ['UK Government Investments data breach']
+  #320 — EU Seeks Public Input on Redesigned Euro Bank Notes  |  entities: ['Euro Bank Note Redesign']
+  #321 — Queensland Unveils Brisbane Olympic Stadium Precinct Plans  |  entities: ['Brisbane 2032 Olympics']
+  #322 — Photographer Documents American Redheads  |  entities: ['Red Hair Project']
+  #323 — Arsenal Signs New Player, Eyes Additional Acquisitions  |  entities: ['Arsenal FC', 'English Premier League']
+  #324 — LA Dodgers Acquire Tarik Skubal at MLB Trade Deadline  |  entities: ['2023 MLB season', 'LA Dodgers roster']
+  #325 — Lionel Messi Returns to Inter Miami After Post-World Cup Break  |  entities: ['Lionel Messi', 'Inter Miami']
+  #326 — Global Community Urged to Prevent Potential US Invasion of Cuba  |  entities: ['US-Cuba relations']
+  #327 — Chinese Chipmaker Challenges Western Dominance  |  entities: ['CXMT', 'Western Chipmakers', 'AI Economy']
+  #328 — Former Turkish Prime Minister Ahmet Davutoglu Steps Back from Politics  |  entities: ['Turkish Politics', 'Erdogan Administration']
+  #329 — Zimbabwe Shutdown Call Met with Heavy Security Presence  |  entities: ['Zimbabwe Protests']
+  #330 — Ceuta Residents Counter Far-Right Anti-Migrant Rally  |  entities: ['Ceuta Migration Crisis', 'Spanish Far-Right Movements']
+  #331 — Indonesia Ferry Fire  |  entities: ['Indonesia Ferry Disaster']
+  #332 — UK Experiences Severe Drought and Heatwaves  |  entities: ['2023 UK heatwave and drought']
+
+Done.
+--- Building today's papers (all users) ---
+User 1: 6 stories selected for today's edition
+User 10: 3 stories selected for today's edition
+--- Generating context (history / catch-up / AI summary) ---
+Generating context for 7 stories...
+
+  #290 — Famed Mountaineer Nirmal Purja Dies in Pakistan Avalanche
+      ai_summary: generated  |  history: 0 entries  |  recent: 3 entries
+  #331 — Indonesia Ferry Fire
+      ai_summary: generated  |  history: 0 entries  |  recent: 0 entries
+  #327 — Chinese Chipmaker Challenges Western Dominance
+      ai_summary: generated  |  history: 7 entries  |  recent: 0 entries
+  #310 — Idaho In-N-Out Burger Shooting Leaves Multiple Dead
+      ai_summary: generated  |  history: 0 entries  |  recent: 0 entries
+  #317 — Electric and Hybrid Vehicles Gain Popularity in Australia
+      ai_summary: generated  |  history: 7 entries  |  recent: 0 entries
+  #315 — Ukraine Deploys Drone Strike Force Against Russia
+      ai_summary: generated  |  history: 7 entries  |  recent: 0 entries
+  #301 — Teenage Hitmen Recruited by Foxtrot Network Across Europe
+      ai_summary: generated  |  history: 7 entries  |  recent: 0 entries
+
+Done.
+=== Done: Sun Aug  2 15:53:30 IST 2026 ===

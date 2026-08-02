@@ -1,0 +1,8 @@
+=== Throughline pipeline run: Sun Aug  2 15:50:15 IST 2026 ===
+--- Ingesting articles ---
+--- Embedding new articles ---
+--- Clustering ---
+--- Synthesizing stories ---
+--- Building today's papers (all users) ---
+--- Generating context (history / catch-up / AI summary) ---
+=== Done: Sun Aug  2 15:53:30 IST 2026 ===
