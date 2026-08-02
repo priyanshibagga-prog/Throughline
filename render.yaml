@@ -6,9 +6,13 @@ databases:
 
 services:
   # Backend API. Handles both the per-request lazy pipeline trigger
-  # (see build_paper.py's ensure_todays_data_is_fresh) and, as a
-  # reliable pre-warm, the nightly cron job below runs the same
-  # pipeline directly so most visitors never wait on it at all.
+  # (see build_paper.py's ensure_todays_data_is_fresh) and a free daily
+  # pre-warm: GET /api/admin/warm runs the same refresh in the
+  # background, meant to be pinged once a day by the GitHub Actions
+  # workflow in .github/workflows/daily-warm.yml — a $0 stand-in for
+  # Render's paid Cron Jobs feature. Set ADMIN_TRIGGER_KEY below to a
+  # random string and put the same value in the GitHub repo secret of
+  # the same name.
   - name: throughline-api
     type: web
     runtime: python
@@ -23,6 +27,8 @@ services:
           property: connectionString
       - key: GROQ_API_KEY
         sync: false  # set manually in the Render dashboard — your Groq API key
+      - key: ADMIN_TRIGGER_KEY
+        sync: false  # set to a random string; must match the GitHub Actions secret of the same name
 
   # Frontend static site. VITE_API_BASE_URL has to be set manually
   # after the first deploy, once you know throughline-api's actual
@@ -37,29 +43,3 @@ services:
     envVars:
       - key: VITE_API_BASE_URL
         sync: false  # set to https://throughline-api.onrender.com (or whatever it's actually named) after the API service exists
-
-  # Nightly pre-warm: runs the full ingest -> embed -> cluster ->
-  # synthesize -> build_paper (all users) -> generate_context pipeline
-  # directly, on a schedule Render actually honors reliably (no macOS
-  # permission issues here). Keeps the shared story pool fresh so the
-  # lazy per-visitor trigger in build_todays_paper is a fast no-op for
-  # almost everyone — it only does real work for a brand-new sign-up's
-  # own first edition, not the whole shared refresh.
-  #
-  # Schedule is in UTC. "0 6 * * *" = 6:00 AM UTC daily — adjust to
-  # taste (e.g. for 6am US Eastern during standard time, use "0 11 * * *").
-  - name: throughline-daily-refresh
-    type: cron
-    runtime: python
-    plan: starter
-    region: oregon
-    schedule: "0 6 * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: bash run_pipeline.sh
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: throughline-db
-          property: connectionString
-      - key: GROQ_API_KEY
-        sync: false
