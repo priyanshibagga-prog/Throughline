@@ -1,0 +1,36 @@
+name: Daily pipeline refresh
+
+# Runs the shared ingest -> embed -> cluster -> synthesize ->
+# build_paper (all users) -> generate_context pipeline directly
+# against the database, on a free schedule — no paid host-side cron
+# job needed. The backend API itself stays lightweight (just serves
+# already-fresh editions); this is what actually keeps the story pool
+# current.
+#
+# Requires two repo secrets (Settings -> Secrets and variables -> Actions):
+#   - DATABASE_URL: your Neon (or other) Postgres connection string
+#   - GROQ_API_KEY: your Groq API key
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # 6:00 AM UTC daily — adjust to taste
+  workflow_dispatch: {}   # lets you trigger it manually from the Actions tab
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline
+        run: bash run_pipeline.sh
