@@ -2,7 +2,10 @@ import { useState, useRef, useEffect } from "react"
 
 // ─── API config ─────────────────────────────────────────────────────────────
 
-const API_BASE = "http://localhost:8000"
+// Set VITE_API_BASE_URL at build time (e.g. in Render's static site env
+// vars) to point at the deployed backend. Falls back to localhost for
+// local dev, where the backend runs on 8000 by default.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -90,13 +93,13 @@ function mapStoryToArticle(story: any): Article {
 
 // ─── Shared paper layout wrapper ──────────────────────────────────────────────
 
-function PaperShell({ children }: { children: React.ReactNode }) {
+function PaperShell({ children, avatarInitial }: { children: React.ReactNode; avatarInitial?: string }) {
   return (
     <div className="paper-bg min-h-screen" style={{ color: "#1a1505" }}>
       <div className="border-b border-[#b8a888]">
         <div className="max-w-5xl mx-auto px-6 py-2 flex items-center justify-end">
           <div className="w-6 h-6 rounded-full bg-[#5a4a2a] flex items-center justify-center">
-            <span className="font-mono-data text-[9px] text-[#f2e8d0]">Y</span>
+            <span className="font-mono-data text-[9px] text-[#f2e8d0]">{(avatarInitial || "?").toUpperCase()}</span>
           </div>
         </div>
       </div>
@@ -248,7 +251,7 @@ function SignInScreen({ onNext }: { onNext: (email: string) => void }) {
   const [password, setPassword] = useState("")
 
   return (
-    <PaperShell>
+    <PaperShell avatarInitial={email.trim()[0]}>
       <div className="max-w-md mx-auto px-6 py-16">
         <div className="font-mono-data text-[9px] tracking-[0.3em] text-[#8a7855] uppercase mb-1">
           Welcome
@@ -298,11 +301,12 @@ function SignInScreen({ onNext }: { onNext: (email: string) => void }) {
   )
 }
 
-function SourcesScreen({ onNext, initial = [], mode = "onboarding", onCancel }: {
+function SourcesScreen({ onNext, initial = [], mode = "onboarding", onCancel, avatarInitial }: {
   onNext: (selected: string[]) => void
   initial?: string[]
   mode?: "onboarding" | "edit"
   onCancel?: () => void
+  avatarInitial?: string
 }) {
   const [selected, setSelected] = useState<string[]>(initial)
   const toggle = (id: string) =>
@@ -310,7 +314,7 @@ function SourcesScreen({ onNext, initial = [], mode = "onboarding", onCancel }: 
   const isEdit = mode === "edit"
 
   return (
-    <PaperShell>
+    <PaperShell avatarInitial={avatarInitial}>
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="font-mono-data text-[9px] tracking-[0.3em] text-[#8a3a2a] uppercase mb-2">
           {isEdit ? "Account settings" : "Step 1 of 3"}
@@ -388,11 +392,12 @@ function StarRating({ value, onChange }: { value: number; onChange: (n: number) 
   )
 }
 
-function TopicsScreen({ onNext, initialWeights, mode = "onboarding", onCancel }: {
+function TopicsScreen({ onNext, initialWeights, mode = "onboarding", onCancel, avatarInitial }: {
   onNext: (weights: Record<string, number>) => void
   initialWeights?: Record<string, number>
   mode?: "onboarding" | "edit"
   onCancel?: () => void
+  avatarInitial?: string
 }) {
   const [weights, setWeights] = useState<Record<string, number>>(initialWeights ?? { Headlines: HEADLINES_WEIGHT })
   const isEdit = mode === "edit"
@@ -414,7 +419,7 @@ function TopicsScreen({ onNext, initialWeights, mode = "onboarding", onCancel }:
   const selectedTopics = Object.keys(weights).filter((t) => t !== "Headlines")
 
   return (
-    <PaperShell>
+    <PaperShell avatarInitial={avatarInitial}>
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="font-mono-data text-[9px] tracking-[0.3em] text-[#8a3a2a] uppercase mb-2">
           {isEdit ? "Account settings" : "Step 2 of 3"}
@@ -483,19 +488,20 @@ function TopicsScreen({ onNext, initialWeights, mode = "onboarding", onCancel }:
   )
 }
 
-function ReadTimeScreen({ onNext, submitting, error, initial = "30", mode = "onboarding", onCancel }: {
+function ReadTimeScreen({ onNext, submitting, error, initial = "30", mode = "onboarding", onCancel, avatarInitial }: {
   onNext: (time: string) => void
   submitting: boolean
   error: string | null
   initial?: string
   mode?: "onboarding" | "edit"
   onCancel?: () => void
+  avatarInitial?: string
 }) {
   const [selected, setSelected] = useState(initial)
   const isEdit = mode === "edit"
 
   return (
-    <PaperShell>
+    <PaperShell avatarInitial={avatarInitial}>
       <div className="max-w-xl mx-auto px-6 py-12">
         <div className="font-mono-data text-[9px] tracking-[0.3em] text-[#8a3a2a] uppercase mb-2">
           {isEdit ? "Account settings" : "Step 3 of 3"}
@@ -555,7 +561,8 @@ function ReadTimeScreen({ onNext, submitting, error, initial = "30", mode = "onb
   )
 }
 
-function AccountMenu({ onEditSources, onEditTopics, onEditReadTime, onLogout }: {
+function AccountMenu({ email, onEditSources, onEditTopics, onEditReadTime, onLogout }: {
+  email: string
   onEditSources: () => void
   onEditTopics: () => void
   onEditReadTime: () => void
@@ -588,7 +595,7 @@ function AccountMenu({ onEditSources, onEditTopics, onEditReadTime, onLogout }: 
         className="w-6 h-6 rounded-full bg-[#5a4a2a] flex items-center justify-center hover:bg-[#3a2e18] transition-colors"
         aria-label="Account menu"
       >
-        <span className="font-mono-data text-[9px] text-[#f2e8d0]">Y</span>
+        <span className="font-mono-data text-[9px] text-[#f2e8d0]">{(email.trim()[0] || "?").toUpperCase()}</span>
       </button>
 
       {open && (
@@ -713,6 +720,7 @@ function NewspaperScreen({ userId, profile, onLogout, onProfileSaved }: {
         initial={profile.sources}
         onNext={(s) => saveProfile({ sources: s })}
         onCancel={() => setSettingsView(null)}
+        avatarInitial={profile.email[0]}
       />
     )
   }
@@ -723,6 +731,7 @@ function NewspaperScreen({ userId, profile, onLogout, onProfileSaved }: {
         initialWeights={profile.topicWeights}
         onNext={(w) => saveProfile({ topicWeights: w })}
         onCancel={() => setSettingsView(null)}
+        avatarInitial={profile.email[0]}
       />
     )
   }
@@ -735,6 +744,7 @@ function NewspaperScreen({ userId, profile, onLogout, onProfileSaved }: {
         error={null}
         onNext={(t) => saveProfile({ readingTimeMinutes: parseInt(t, 10) })}
         onCancel={() => setSettingsView(null)}
+        avatarInitial={profile.email[0]}
       />
     )
   }
@@ -769,6 +779,7 @@ function NewspaperScreen({ userId, profile, onLogout, onProfileSaved }: {
       <div className="border-b border-[#b8a888] bg-[#f2e8d0]">
         <div className="max-w-5xl mx-auto px-6 py-2 flex items-center justify-end">
           <AccountMenu
+            email={profile.email}
             onEditSources={() => setSettingsView("sources")}
             onEditTopics={() => setSettingsView("topics")}
             onEditReadTime={() => setSettingsView("readtime")}
@@ -905,11 +916,11 @@ export default function App() {
     case "signin":
       return <SignInScreen onNext={(e) => { setProfile((p) => ({ ...p, email: e })); setScreen("sources") }} />
     case "sources":
-      return <SourcesScreen onNext={(s) => { setProfile((p) => ({ ...p, sources: s })); setScreen("topics") }} />
+      return <SourcesScreen onNext={(s) => { setProfile((p) => ({ ...p, sources: s })); setScreen("topics") }} avatarInitial={profile.email[0]} />
     case "topics":
-      return <TopicsScreen onNext={(w) => { setProfile((p) => ({ ...p, topicWeights: w })); setScreen("readtime") }} />
+      return <TopicsScreen onNext={(w) => { setProfile((p) => ({ ...p, topicWeights: w })); setScreen("readtime") }} avatarInitial={profile.email[0]} />
     case "readtime":
-      return <ReadTimeScreen onNext={handleFinish} submitting={submitting} error={submitError} />
+      return <ReadTimeScreen onNext={handleFinish} submitting={submitting} error={submitError} avatarInitial={profile.email[0]} />
     case "newspaper":
       return userId ? (
         <NewspaperScreen

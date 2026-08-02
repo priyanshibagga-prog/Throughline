@@ -118,7 +118,10 @@ class UserCreate(BaseModel):
 def create_user(payload: UserCreate):
     """
     Creates (or updates) a user from the onboarding flow — this is what
-    the sources + topics + reading-time screens actually call now.
+    the sources + topics + reading-time screens actually call now, and
+    what the account-menu settings screens call to save an edit. Callers
+    always send the full profile (edits merge onto the current one
+    client-side first), so this can safely overwrite every column.
     """
     conn = get_conn()
     try:
